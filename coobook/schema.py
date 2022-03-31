@@ -29,4 +29,23 @@ class Query(graphene.ObjectType):
             return None
 
 
-schema = graphene.Schema(query=Query)
+class MyAwesomeMutation(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        notes= graphene.String(required=True)
+        category = graphene.Int()
+
+    ingredient = graphene.Field(IngredientType)
+    @classmethod
+    def mutate(cls, root, info, name, notes, category):
+        ingredient = Ingredient.objects.create(
+            name=name,
+            notes=notes,
+            category_id=category
+        )
+        return MyAwesomeMutation(ingredient=ingredient)
+
+class Mutation(graphene.ObjectType):
+    create_ingredient = MyAwesomeMutation.Field()
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
